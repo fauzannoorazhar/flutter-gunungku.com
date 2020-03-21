@@ -109,7 +109,7 @@ class _ListGunugPageState extends State<ListGunugPage> {
                 onTap: () {
                     Navigator.push(
                         context, 
-                        MaterialPageRoute(builder: (context) => DetailGunungPage(id: data[index].id))
+                        MaterialPageRoute(builder: (context) => DetailGunungPage(id: data[index].id, title: data[index].nama))
                     );
                 },
                 child: Card(

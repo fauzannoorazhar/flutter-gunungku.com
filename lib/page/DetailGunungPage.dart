@@ -7,8 +7,10 @@ import 'dart:developer' as dev;
 
 class DetailGunungPage extends StatefulWidget {
     int id;
+    String title;
     DetailGunungPage({
-        this.id
+        this.id,
+        this.title
     });
 
     @override
@@ -17,14 +19,13 @@ class DetailGunungPage extends StatefulWidget {
 
 class _DetailGunungPageState extends State<DetailGunungPage> {
     Gunung gunung;
-    String title = 'Gunung';
 
     @override
     Widget build(BuildContext context) {
         // TODO: implement build
         return Scaffold(
             appBar: AppBar(
-                title: Text(title)
+                title: Text(widget.title)
             ),
             floatingActionButton: FloatingActionButton(
                 onPressed: null,
@@ -218,8 +219,6 @@ class _DetailGunungPageState extends State<DetailGunungPage> {
                         path_gambar: responseBody['path_gambar'],
                         status: responseBody['status']
                     );
-
-                    title = gunung.nama;
                 });
             }
             
