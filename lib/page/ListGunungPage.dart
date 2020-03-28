@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gunungku_com/models/Gunung.dart';
 import 'package:flutter_gunungku_com/page/DetailGunungPage.dart';
+import 'package:flutter_gunungku_com/widgets/MenuDrawer.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:developer' as dev;
@@ -24,7 +25,8 @@ class _ListGunugPageState extends State<ListGunugPage> {
             appBar: new AppBar(
                 title: Text("Daftar Gunung"),
             ),
-            body: _listViewGunung()
+            body: _listViewGunung(),
+            drawer: MenuDrawer(),
         );
     }
 
@@ -131,7 +133,7 @@ class _ListGunugPageState extends State<ListGunugPage> {
                                                 image: NetworkImage('http://192.168.43.156/gunungku.com' + data[index].path_gambar),
                                                 fit: BoxFit.cover,
                                                 child: Container(),
-                                            ),
+                                            )
                                         ),
                                         Positioned(
                                             bottom: 16,

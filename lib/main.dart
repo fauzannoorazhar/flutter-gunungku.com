@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gunungku_com/page/ListGunungPage.dart';
+import 'package:flutter_gunungku_com/page/WelcomePage.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,7 +14,8 @@ class MyApp extends StatelessWidget {
                 primarySwatch: Colors.green,
                 //scaffoldBackgroundColor: Color.fromARGB(240, 240, 240, 240)
             ),
-            home: ListGunugPage()
+            //home: WelcomePage()
+            home: ListGunugPage(),
         );
     }
 }
