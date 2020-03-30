@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gunungku_com/models/Gunung.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class TabDataGunung extends StatefulWidget  {
     Gunung gunung;
@@ -12,13 +13,22 @@ class _TabDataGunung extends State<TabDataGunung> {
     @override
     Widget build(BuildContext context) {
     // TODO: implement build
-        return Container(
-            child: ListView(
-                children: <Widget>[
-                    _imagesHeader(context, widget.gunung),
-                    _listCardIcon(widget.gunung),
-                    _contentArticle(context, widget.gunung),
-                ],
+        return Scaffold(
+            floatingActionButton:  FloatingActionButton(
+                onPressed: null,
+                child: FaIcon(
+                    FontAwesomeIcons.shareAlt,
+                    color: Colors.white,
+                )
+            ),
+            body: Container(
+                child: ListView(
+                    children: <Widget>[
+                        _imagesHeader(context, widget.gunung),
+                        _listCardIcon(widget.gunung),
+                        _contentArticle(context, widget.gunung),
+                    ],
+                ),
             ),
         );
     }
