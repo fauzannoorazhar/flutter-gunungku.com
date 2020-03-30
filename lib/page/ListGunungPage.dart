@@ -83,19 +83,16 @@ class _ListGunugPageState extends State<ListGunugPage> {
 
     Future<List<Gunung>> _getListGunung() async {
         final SharedPreferences sp = await SharedPreferences.getInstance();
-        sp.setString('url', 'http://192.168.43.156/gunungku.com/web/index.php?r=');
-        sp.setString('root-path', 'http://192.168.43.156/gunungku.com');
-        dev.log('sp url : ' + sp.getString('url'));
         
         var buffer = new StringBuffer();
-        buffer.write(sp.getString('url') + 'api/gunung');
+        buffer.write(sp.getString('apiUrl') + '/index.php?r=api/gunung');
         String url = buffer.toString();
         var response = await http.get(url);
 
         if (response.statusCode == 200) {
             var responseBody = json.decode(response.body);
             List listJson = responseBody;
-            dev.log('listJson : ' + listJson.toString());
+            //dev.log('listJson : ' + listJson.toString());
 
             listGunung = listJson.map((gunung) => new Gunung.fetchData(gunung)).toList();
 
@@ -130,7 +127,7 @@ class _ListGunugPageState extends State<ListGunugPage> {
                                     children: [
                                         Positioned.fill(
                                             child: Ink.image(
-                                                image: NetworkImage('http://192.168.43.156/gunungku.com' + data[index].path_gambar),
+                                                image: NetworkImage('http://192.168.43.156/gunungku.com/web' + data[index].path_gambar),
                                                 fit: BoxFit.cover,
                                                 child: Container(),
                                             )

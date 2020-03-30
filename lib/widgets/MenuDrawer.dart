@@ -24,10 +24,16 @@ class MenuDrawer extends StatelessWidget {
                         leading: Icon(Icons.list), 
                         title: Text('Daftar Gunung'), 
                     ),
+                    Divider(),
                     ListTile(
                         leading: Icon(Icons.account_circle), 
                         title: Text('Profil'), 
                     ),
+                    ListTile(
+                        leading: Icon(Icons.account_circle), 
+                        title: Text('Profil'), 
+                    ),
+                    Divider(),
                     ListTile(
                         leading: Icon(Icons.verified_user), 
                         title: Text('Logout'), 

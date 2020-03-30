@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Gunung {
     int id;
@@ -75,5 +76,15 @@ class Gunung {
             ],
         );
         
+    }
+
+    Future<void> getGambar() async {
+        SharedPreferences sp = await SharedPreferences.getInstance();
+
+        return Ink.image(
+            image: NetworkImage(sp.getString('apiUrl') + this.path_gambar),
+            fit: BoxFit.cover,
+            child: Container(),
+        );
     }
 }

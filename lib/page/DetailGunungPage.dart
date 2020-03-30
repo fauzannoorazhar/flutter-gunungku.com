@@ -1,5 +1,7 @@
+import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gunungku_com/models/Gunung.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -23,19 +25,44 @@ class _DetailGunungPageState extends State<DetailGunungPage> {
     @override
     Widget build(BuildContext context) {
         // TODO: implement build
-        return Scaffold(
-            appBar: AppBar(
-                title: Text(widget.title)
-            ),
-            floatingActionButton: FloatingActionButton(
-                onPressed: null,
-                child: Icon(
-                    Icons.share,
-                    color: Colors.white,
-                    size: 30.0,
+        return DefaultTabController(
+            length: 1,
+            child: Scaffold(
+                appBar: AppBar(
+                    title: Text(widget.title),
+                    bottom: TabBar(
+                        tabs: [
+                            Tab (
+                                icon: FaIcon(
+                                    FontAwesomeIcons.mountain,
+                                    size: 18,
+                                ),
+                                text: "Informasi"
+                            ),
+                            // Tab (
+                            //     icon: FaIcon(
+                            //         FontAwesomeIcons.pencilAlt,
+                            //         size: 18,
+                            //     ),
+                            //     text: "Sunting Data",
+                            // ),
+                        ]
+                    )
+                ),
+                floatingActionButton: FloatingActionButton(
+                    onPressed: null,
+                    child: FaIcon(
+                        FontAwesomeIcons.shareAlt,
+                        color: Colors.white,
+                    )
+                ),
+                body: TabBarView(
+                    children: <Widget>[
+                        tabFutureDetailGunung(widget.id),
+                        //tabFutureSunting(widget.id),
+                    ],
                 ),
             ),
-            body: futureDetailGunung(widget.id),
         );
     }
 
@@ -46,7 +73,7 @@ class _DetailGunungPageState extends State<DetailGunungPage> {
                 children: [
                     Positioned.fill(
                         child: Ink.image(
-                            image: NetworkImage('http://192.168.43.156/gunungku.com' + gunung.path_gambar),
+                            image: NetworkImage('http://192.168.43.156/gunungku.com/web' + gunung.path_gambar),
                             fit: BoxFit.cover,
                             child: Container(),
                         ),
@@ -148,7 +175,7 @@ class _DetailGunungPageState extends State<DetailGunungPage> {
                             letterSpacing: 1 
                         )
                     ),
-                    SizedBox(height: 5),
+                    Divider(),
                     Text(
                         gunung.deskripsi,
                         style: TextStyle(
@@ -161,7 +188,7 @@ class _DetailGunungPageState extends State<DetailGunungPage> {
         );
     }
 
-    futureDetailGunung(int id) {
+    tabFutureDetailGunung(int id) {
         return FutureBuilder(
             future: _getDataGunung(id),
             builder: (context, snapshot) {
@@ -197,34 +224,205 @@ class _DetailGunungPageState extends State<DetailGunungPage> {
 
     Future<Gunung> _getDataGunung(int id) async {
         final SharedPreferences sp = await SharedPreferences.getInstance();
-        dev.log('sp url : ' + sp.getString('url'));
+        try {
+            var buffer = StringBuffer();
+            buffer.write(sp.getString('apiUrl') + '/index.php?r=api/gunung/view&id=' + id.toString());
+            String url = buffer.toString();
 
-        var buffer = StringBuffer();
-        buffer.write(sp.getString('url') + 'api/gunung/view&id=' + id.toString());
-        String url = buffer.toString();
-        var response = await http.get(url);
+            var response = await http.get(url);
+            if (response.statusCode == 200) {
+                var responseBody = json.decode(response.body);
 
-        if (response.statusCode == 200) {
-            var responseBody = json.decode(response.body);
-
-            if (this.mounted) {
-                setState(() {
-                    gunung = Gunung(
-                        nama: responseBody['nama'],
-                        deskripsi: responseBody['deskripsi'],
-                        ketinggian: responseBody['ketinggian'],
-                        status_aktif: responseBody['status_aktif'],
-                        lokasi: responseBody['lokasi'],
-                        jenis_gunung: responseBody['jenis_gunung'],
-                        path_gambar: responseBody['path_gambar'],
-                        status: responseBody['status']
-                    );
-                });
+                if (this.mounted) {
+                    setState(() {
+                        gunung = Gunung(
+                            nama: responseBody['nama'],
+                            deskripsi: responseBody['deskripsi'],
+                            ketinggian: responseBody['ketinggian'],
+                            status_aktif: responseBody['status_aktif'],
+                            lokasi: responseBody['lokasi'],
+                            jenis_gunung: responseBody['jenis_gunung'],
+                            path_gambar: responseBody['path_gambar'],
+                            status: responseBody['status']
+                        );
+                    });
+                }
+                
+                return gunung;
+            } else {
+                throw Exception("Tidak Ada Response");
             }
-            
-            return gunung;
-        } else {
-            throw Exception("Tidak Ada Response");
+        } catch (e) {
+            print (e); 
+            throw e;
         }
+
+        
     }
+
+    tabFutureSunting(int id) {
+        return FutureBuilder(
+            future: _getDataGunung(id),
+            builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                    Gunung gunung = snapshot.data;
+
+                    if (gunung != null) {
+                        return formSuntingGunung(gunung);
+                    }
+
+                } else if (snapshot.hasError) {
+                    return Center(
+                        child: Text("Data Tidak Ditemukan"),
+                    );
+                }
+
+                return Container(
+                    alignment: Alignment.center,
+                    child: CircularProgressIndicator(),
+                );
+            },
+        );
+    }
+
+    SingingCharacter _statusGunung = SingingCharacter.dibuka;
+    final _nameController = TextEditingController();
+    String _myActivity;
+    String _myActivityResult;
+
+    formSuntingGunung(Gunung gunung) {
+        return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+                margin: EdgeInsets.only(bottom: 20),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                        SizedBox(height: 20),
+                        TextFormField(
+                            //controller: _nameController,
+                            textCapitalization: TextCapitalization.words,
+                            decoration: InputDecoration(
+                                border: UnderlineInputBorder(),
+                                hintText: 'Masukan inputan anda',
+                                labelText: 'Nama Gunung ',
+                            ),
+                            initialValue: gunung.nama,
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                            child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                    Expanded(
+                                        flex: 1,
+                                        child: ListTile(
+                                            title: const Text('Dibuka'),
+                                            leading: Radio(
+                                                value: SingingCharacter.dibuka,
+                                                groupValue: _statusGunung,
+                                                onChanged: (SingingCharacter value) {
+                                                    setState(() {
+                                                        _statusGunung = value;
+                                                    });
+                                                },
+                                            ),
+                                        ),
+                                    ),
+                                    Expanded(
+                                        flex: 1,
+                                        child: ListTile(
+                                            title: const Text('Ditutup'),
+                                            leading: Radio(
+                                                value: SingingCharacter.ditutup,
+                                                groupValue: _statusGunung,
+                                                onChanged: (SingingCharacter value) {
+                                                    setState(() {
+                                                        _statusGunung = value;
+                                                    });
+                                                },
+                                            ),
+                                        ),
+                                    )
+                                ],
+                            ),
+                        ),
+                        SizedBox(height: 0),
+                        TextFormField(
+                            controller: _nameController,
+                            textCapitalization: TextCapitalization.words,
+                            decoration: InputDecoration(
+                                border: UnderlineInputBorder(),
+                                hintText: 'Masukan inputan anda',
+                                labelText: 'Lokasi ',
+                            ),
+                        ),
+                        SizedBox(height: 20),
+                        TextFormField(
+                            controller: _nameController,
+                            textCapitalization: TextCapitalization.words,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                                border: UnderlineInputBorder(),
+                                hintText: 'Masukan inputan anda',
+                                labelText: 'Ketinggian (mdpl)',
+                            ),
+                        ),
+                        SizedBox(height: 30),
+                        Container(
+                            child: DropDownFormField(
+                                titleText: 'Jenis Gunung',
+                                hintText: '-- Pilih Jenis Gunung --',
+                                value: _myActivity,
+                                onSaved: (value) {
+                                    setState(() {
+                                        _myActivity = value;
+                                    });
+                                },
+                                onChanged: (value) {
+                                    setState(() {
+                                        _myActivity = value;
+                                    });
+                                },
+                                dataSource: [
+                                    {
+                                        "display": "Running",
+                                        "value": "Running",
+                                    },
+                                    {
+                                        "display": "Climbing",
+                                        "value": "Climbing",
+                                    },
+                                ],
+                                textField: 'display',
+                                valueField: 'value',
+                            ),
+                        ),
+                        SizedBox(height: 30),
+                        TextFormField(
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Detail Gunung',
+                                hintText: 'Masukan inputan anda',
+                            ),
+                            maxLines: 10,
+                        ),
+                    
+                        // RaisedButton(
+                        //     onPressed: () {
+                        //         print("nama" + _nameController.text);
+                        //         _nameController.text = '';
+                        //     },
+                        //     child: Text('Submit'),
+                        // )
+                    ],
+                ),
+            )
+        );
+    }
+}
+
+enum SingingCharacter { 
+    dibuka, ditutup
 }
